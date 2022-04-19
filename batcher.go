@@ -16,14 +16,26 @@ type alpchain struct {
 	data  *chainData
 }
 
+const _UNCLEAN_KEY = "-"
+
 func (a *alpchain) clean() {
+	// clean current node
+	if a.key == "-" {
+		return
+	}
+
 	a.data = nil
 	if len(a.nexts) > 0 {
 		return
 	}
 
 	a.nexts = nil
+
+	// clean previous node
 	delete(a.pre.nexts, a.key)
+	if a.pre.data == nil && len(a.pre.nexts) == 0 {
+		a.pre.clean()
+	}
 }
 
 type chainData struct {
@@ -41,12 +53,9 @@ type chainData struct {
 
 func (c *chainData) needLogged() bool {
 	now := time.Now()
-	// x := c.start.Add(c.timeout).Unix()
-	// y := time.Now().Unix() - x
-	// y = y + 1
 	return c.count >= c.maxRelativeBatch || // reached max batch counts
-		(c.timeout != -1 && c.start.Add(c.timeout).Before(now)) ||
-		(c.wait != -1 && c.lastUpdated.Add(c.wait).Before(now))
+		(c.timeout != -1 && c.start.Add(c.timeout).Before(now)) || // timeout
+		(c.wait != -1 && c.lastUpdated.Add(c.wait).Before(now)) // extend
 }
 
 type chainedBatcher struct {
@@ -71,7 +80,9 @@ func init() {
 	for i := zerolog.DebugLevel; i <= zerolog.PanicLevel; i++ {
 		batcher.root.nexts[i.String()] = &alpchain{
 			pre: &batcher.root,
+			key: _UNCLEAN_KEY,
 		}
+		batcher.root.key = _UNCLEAN_KEY
 	}
 	go batcher.logging()
 }
@@ -105,15 +116,16 @@ func (b *chainedBatcher) Batch(e *event, opts ...BatchOption) {
 		}
 
 		if _, ok := node.nexts[v]; !ok {
-			node.nexts[v] = &alpchain{}
+			node.nexts[v] = &alpchain{
+				key: v,
+				pre: node,
+			}
 		}
 
 		if k == len(e.batchKeysA)-1 {
 			value, _ := node.nexts[v]
 			if value.data == nil {
 				value.data = rawChainData(e.event)
-				value.pre = node
-				value.key = v
 
 				if len(e.logger.opts) > 0 {
 					value.data.applyOpts(e.logger.opts...)

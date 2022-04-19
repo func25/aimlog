@@ -53,5 +53,40 @@ func TestMaxRelatitveBatch(t *testing.T) {
 		logger.Debug().BatchStr("tokenId", "123456").BatchMsg("hello")
 	}
 	fmt.Println("done")
-	time.Sleep(10 * time.Hour)
+	time.Sleep(time.Hour)
+}
+
+func TestScenario(t *testing.T) {
+	logger := batchlog.NewLogger(batchlog.OptTimeout(time.Hour))
+
+	go func() {
+		logger.Debug().BatchStr("tokenId", "123456").BatchMsg("hello")
+		logger.Debug().BatchStr("tokenId", "123456").BatchMsg("hello")
+		logger.Debug().BatchStr("tokenId", "123456").BatchMsg("hello")
+		logger.Debug().BatchStr("tokenId", "123456").BatchMsg("hello")
+		batchlog.Test()
+		fmt.Println("done 1")
+	}()
+
+	go func() {
+		logger.Debug().BatchStr("tokenId", "123456").BatchBool("bool", false).BatchMsg("hello")
+		logger.Debug().BatchStr("tokenId", "123456").BatchBool("bool", false).BatchMsg("hello")
+		logger.Debug().BatchStr("tokenId", "123456").BatchBool("bool", false).BatchMsg("hello")
+		logger.Debug().BatchStr("tokenId", "123456").BatchBool("bool", false).BatchMsg("hello")
+		batchlog.Test()
+		fmt.Println("done 2")
+	}()
+
+	go func() {
+		logger.Debug().BatchStr("tokenId", "123456").BatchBool("bool", false).BatchInt("int", 1).BatchMsg("hello")
+		logger.Debug().BatchStr("tokenId", "123456").BatchBool("bool", false).BatchInt("int", 1).BatchMsg("hello")
+		logger.Debug().BatchStr("tokenId", "123456").BatchBool("bool", false).BatchInt("int", 1).BatchMsg("hello")
+		logger.Debug().BatchStr("tokenId", "123456").BatchBool("bool", false).BatchInt("int", 1).BatchMsg("hello")
+		batchlog.Test()
+		fmt.Println("done 3")
+	}()
+
+	for {
+		batchlog.Test()
+	}
 }
