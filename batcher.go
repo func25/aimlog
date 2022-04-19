@@ -48,8 +48,24 @@ type chainData struct {
 	timeout time.Duration // option
 
 	lastUpdated time.Time
-	wait        time.Duration
+	wait        time.Duration // option
+
+	groupKey    string
+	groupValues []string
 }
+
+// type marshalZerologTexts []text
+// type text string
+
+// func (uu marshalZerologTexts) MarshalZerologArray(a *zerolog.Array) {
+// 	for _, u := range uu {
+// 		a.Object(u)
+// 	}
+// }
+
+// func (u text) MarshalZerologObject(e *zerolog.Event) {
+// 	e.Str("", string(u))
+// }
 
 func (c *chainData) needLogged() bool {
 	now := time.Now()
@@ -125,7 +141,7 @@ func (b *chainedBatcher) Batch(e *event, opts ...BatchOption) {
 		if k == len(e.batchKeysA)-1 {
 			value, _ := node.nexts[v]
 			if value.data == nil {
-				value.data = rawChainData(e.event)
+				value.data = rawChainData(e)
 
 				if len(e.logger.opts) > 0 {
 					value.data.applyOpts(e.logger.opts...)
@@ -136,6 +152,11 @@ func (b *chainedBatcher) Batch(e *event, opts ...BatchOption) {
 
 			value.data.count++
 			value.data.lastUpdated = time.Now()
+
+			if len(e.group.key) > 0 {
+				value.data.groupValues = append(value.data.groupValues, e.group.value)
+			}
+
 			node.nexts[v] = value
 		}
 
@@ -143,14 +164,17 @@ func (b *chainedBatcher) Batch(e *event, opts ...BatchOption) {
 	}
 }
 
-func rawChainData(event *zerolog.Event) *chainData {
+func rawChainData(event *event) *chainData {
 	return &chainData{
-		event:            event,
+		event:            event.event,
 		count:            0,
 		start:            time.Now(),
 		timeout:          10 * time.Second,
 		maxRelativeBatch: 20,
 		wait:             5 * time.Second,
+		// lastUpdated: time.Now(),
+		groupKey: event.group.key,
+		// groupValues: make([]string, 0),
 	}
 }
 
@@ -180,6 +204,11 @@ func (b *chainedBatcher) logging() {
 // and remove that element out of logger
 func batchOut(b *chainedBatcher, c *chainData, i int) {
 	c.event.Int("__repeat", c.count)
+
+	if len(c.groupValues) > 0 {
+		c.event.Strs(c.groupKey, c.groupValues)
+	}
+
 	c.event.Send()
 
 	b.logged[i].clean()

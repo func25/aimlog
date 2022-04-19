@@ -56,6 +56,16 @@ func TestMaxRelatitveBatch(t *testing.T) {
 	time.Sleep(time.Hour)
 }
 
+func TestGroup(t *testing.T) {
+	logger := batchlog.NewLogger(batchlog.OptTimeout(time.Hour))
+	for i := 0; i < 30; i++ {
+		time.Sleep(1500 * time.Millisecond)
+		logger.Debug().BatchStr("tokenId", "123456").GroupInt("id", i).BatchMsg("hello")
+	}
+	fmt.Println("done")
+	time.Sleep(time.Hour)
+}
+
 func TestScenario(t *testing.T) {
 	logger := batchlog.NewLogger(batchlog.OptTimeout(time.Hour))
 

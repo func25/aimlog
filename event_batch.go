@@ -8,6 +8,11 @@ import (
 	"github.com/rs/zerolog"
 )
 
+type pairString struct {
+	key   string
+	value string
+}
+
 // event is based on zerolog.Event, so dont reuse this after logging
 type event struct {
 	logger *Logger
@@ -15,10 +20,11 @@ type event struct {
 	level zerolog.Level
 	event *zerolog.Event
 	done  bool
-	// groupKey string
 
 	batchKeysM map[string]bool // map of keys that need to batched
 	batchKeysA []string        // array of keys that need to batched
+
+	group pairString
 }
 
 func newRawEvent(l *Logger, e func() *zerolog.Event, lvl zerolog.Level) *event {
