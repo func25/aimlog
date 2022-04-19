@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/func25/batchlog"
+	"github.com/func25/gofunc/mathfunc"
 )
 
 func TestMe(t *testing.T) {
