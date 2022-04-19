@@ -23,25 +23,25 @@ func NewLogger() Logger {
 }
 
 func (l *Logger) Debug() *event {
-	return newRawEvent(l.l.Debug)
+	return newRawEvent(l.l.Debug, zerolog.DebugLevel)
 }
 
 func (l *Logger) Info() *event {
-	return newRawEvent(l.l.Info)
+	return newRawEvent(l.l.Info, zerolog.InfoLevel)
 }
 
 func (l *Logger) Warn() *event {
-	return newRawEvent(l.l.Warn)
+	return newRawEvent(l.l.Warn, zerolog.WarnLevel)
 }
 
 func (l *Logger) Error() *event {
-	return newRawEvent(l.l.Error)
+	return newRawEvent(l.l.Error, zerolog.ErrorLevel)
 }
 
 func (l *Logger) Panic() *event {
-	return newRawEvent(l.l.Panic)
+	return newRawEvent(l.l.Panic, zerolog.PanicLevel)
 }
 
 func (l *Logger) Fatal() *event {
-	return newRawEvent(l.l.Fatal)
+	return newRawEvent(l.l.Fatal, zerolog.FatalLevel)
 }

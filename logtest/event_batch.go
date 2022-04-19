@@ -2,33 +2,54 @@ package logtest
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/rs/zerolog"
 )
 
 type event struct {
-	*zerolog.Event
-	repeat   int
-	groupKey string
+	level zerolog.Level
+	event *zerolog.Event
+	done  bool
+	// groupKey string
 
-	batchKeysM map[string]bool
-	batchKeysA []string
-	checkMap   map[string]string
+	batchKeysM map[string]bool // map of keys that need to batched
+	batchKeysA []string        // array of keys that need to batched
 }
 
-func newRawEvent(e func() *zerolog.Event) *event {
+func newRawEvent(e func() *zerolog.Event, lvl zerolog.Level) *event {
 	return &event{
-		Event:      e(),
-		repeat:     0,
-		groupKey:   "",
+		level: lvl,
+		event: e(),
+		// groupKey:   "",
 		batchKeysM: make(map[string]bool),
 		batchKeysA: make([]string, 0),
 	}
 }
 
 func (e *event) BatchMsg(msg string) {
+	if e.done {
+		return
+	}
+	e.done = true
 
+	e.BatchStr("message", msg)
+	batcher.Batch(e)
+}
+
+func (e *event) Msg(msg string) {
+	if e.done {
+		return
+	}
+	e.done = true
+
+	if len(e.batchKeysA) > 0 {
+		e.Str("message", msg)
+		batcher.Batch(e)
+	} else {
+		e.event.Msg(msg)
+	}
 }
 
 func (e *event) BatchBool(key string, value bool) *event {
@@ -91,8 +112,8 @@ func (e *event) BatchErr(err error) *event {
 }
 
 func (e *event) batch(key string, value string) *event {
-	e.checkMap[key] = value
-	e.batchKeysM[key] = true
-	e.batchKeysA = append(e.batchKeysA, key)
+	realKey := fmt.Sprintf("%s_%s", key, value)
+	e.batchKeysM[realKey] = true
+	e.batchKeysA = append(e.batchKeysA, realKey)
 	return e
 }
