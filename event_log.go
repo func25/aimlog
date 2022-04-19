@@ -1,4 +1,4 @@
-package logtest
+package batchlog
 
 func (e *event) Bool(key string, value bool) *event {
 	if e.event.Bool(key, value) == nil {

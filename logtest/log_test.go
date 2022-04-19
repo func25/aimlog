@@ -3,25 +3,12 @@ package logtest
 import (
 	"testing"
 	"time"
+
+	"github.com/func25/batchlog"
 )
 
-type loggerPool struct {
-	pool map[string]int
-}
-
-type job struct {
-}
-
-var pool *loggerPool
-
-func init() {
-	pool = &loggerPool{
-		make(map[string]int, 100),
-	}
-}
-
 func TestMe(t *testing.T) {
-	logger := NewLogger()
+	logger := batchlog.NewLogger()
 	logger.Debug().BatchStr("tokenId", "123456").BatchBool("isBatch", false).BatchMsg("hello")
 	logger.Debug().BatchStr("tokenId", "123456").BatchMsg("hello")
 	logger.Debug().BatchStr("tokenId", "123457").BatchMsg("hello")

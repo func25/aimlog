@@ -1,4 +1,4 @@
-package logtest
+package batchlog
 
 import (
 	"os"
