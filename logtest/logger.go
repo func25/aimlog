@@ -2,23 +2,17 @@ package logtest
 
 import (
 	"os"
-	"time"
 
 	"github.com/rs/zerolog"
 )
 
 type Logger struct {
 	l zerolog.Logger
-
-	Timeout  time.Duration
-	MaxBatch int
 }
 
 func NewLogger() Logger {
 	return Logger{
-		l:        zerolog.New(os.Stdout),
-		Timeout:  2 * time.Second,
-		MaxBatch: 10,
+		l: zerolog.New(os.Stdout),
 	}
 }
 

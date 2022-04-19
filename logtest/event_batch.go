@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// event is based on zerolog.Event, so dont reuse this after logging
 type event struct {
 	level zerolog.Level
 	event *zerolog.Event
@@ -28,28 +29,48 @@ func newRawEvent(e func() *zerolog.Event, lvl zerolog.Level) *event {
 	}
 }
 
+// BatchMsg will batch the message (string) and logging out
+// this equal: e.BatchStr("message", msg) + e.Send()
+//
+// NOTICE: once this method is called, the *event should be disposed.
+// Calling Msg twice can have unexpected result.
 func (e *event) BatchMsg(msg string) {
 	if e.done {
 		return
 	}
 	e.done = true
 
-	e.BatchStr("message", msg)
+	if len(msg) > 0 {
+		e.BatchStr("message", msg)
+	}
 	batcher.Batch(e)
 }
 
+// Msg sends the *event with msg added as the message field if not empty.
+// it will processed as async batch operation if any param of it is batched
+// otherwise it just prints out immediately
+//
+// NOTICE: once this method is called, the *event should be disposed.
+// Calling Msg twice can have unexpected result.
 func (e *event) Msg(msg string) {
 	if e.done {
 		return
 	}
 	e.done = true
 
-	if len(e.batchKeysA) > 0 {
-		e.Str("message", msg)
-		batcher.Batch(e)
-	} else {
-		e.event.Msg(msg)
+	batcher.Batch(e.Str("message", msg))
+}
+
+// Send is equivalent to calling Msg("").
+//
+// NOTICE: once this method is called, the *Event should be disposed.
+func (e *event) Send() {
+	if e.done {
+		return
 	}
+	e.done = true
+
+	batcher.Batch(e)
 }
 
 func (e *event) BatchBool(key string, value bool) *event {

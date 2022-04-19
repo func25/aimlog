@@ -40,7 +40,7 @@ func (e *event) Interface(key string, i interface{}) *event {
 }
 
 func (e *event) Str(key string, value string) *event {
-	if e.event.Str(key, value) == nil {
+	if len(value) > 0 && e.event.Str(key, value) == nil {
 		return nil
 	}
 

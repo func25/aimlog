@@ -30,9 +30,10 @@ type chainData struct {
 	event *zerolog.Event
 
 	count    int
-	start    time.Time
-	timeout  time.Duration
-	maxBatch int
+	maxBatch int // option
+
+	start   time.Time
+	timeout time.Duration // option
 }
 
 func (c *chainData) needLogged() bool {
@@ -56,7 +57,7 @@ var batcher chainedBatcher
 
 func init() {
 	batcher = chainedBatcher{
-		gap: 1 * time.Second,
+		gap: time.Second,
 		root: alpchain{
 			nexts: make(map[string]*alpchain, 8),
 		},
@@ -69,7 +70,16 @@ func init() {
 	go batcher.logging()
 }
 
+func ChangeGapTime(dur time.Duration) {
+	batcher.gap = dur
+}
+
 func (b *chainedBatcher) Batch(e *event, opts ...BatchOption) {
+	if len(e.batchKeysA) == 0 {
+		e.event.Send()
+		return
+	}
+
 	sort.Slice(e.batchKeysA, func(i, j int) bool {
 		return e.batchKeysA[i] < e.batchKeysA[j]
 	})
