@@ -10,6 +10,8 @@ import (
 
 // event is based on zerolog.Event, so dont reuse this after logging
 type event struct {
+	logger *Logger
+
 	level zerolog.Level
 	event *zerolog.Event
 	done  bool
@@ -19,10 +21,11 @@ type event struct {
 	batchKeysA []string        // array of keys that need to batched
 }
 
-func newRawEvent(e func() *zerolog.Event, lvl zerolog.Level) *event {
+func newRawEvent(l *Logger, e func() *zerolog.Event, lvl zerolog.Level) *event {
 	return &event{
-		level: lvl,
-		event: e(),
+		logger: l,
+		level:  lvl,
+		event:  e(),
 		// groupKey:   "",
 		batchKeysM: make(map[string]bool),
 		batchKeysA: make([]string, 0),

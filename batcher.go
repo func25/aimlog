@@ -29,18 +29,24 @@ func (a *alpchain) clean() {
 type chainData struct {
 	event *zerolog.Event
 
-	count    int
-	maxBatch int // option
+	count            int
+	maxRelativeBatch int // option
 
 	start   time.Time
 	timeout time.Duration // option
+
+	lastUpdated time.Time
+	wait        time.Duration
 }
 
 func (c *chainData) needLogged() bool {
+	now := time.Now()
 	// x := c.start.Add(c.timeout).Unix()
 	// y := time.Now().Unix() - x
 	// y = y + 1
-	return c.count > c.maxBatch || c.start.Add(c.timeout).Before(time.Now())
+	return c.count >= c.maxRelativeBatch || // reached max batch counts
+		(c.timeout != -1 && c.start.Add(c.timeout).Before(now)) ||
+		(c.wait != -1 && c.lastUpdated.Add(c.wait).Before(now))
 }
 
 type chainedBatcher struct {
@@ -109,11 +115,15 @@ func (b *chainedBatcher) Batch(e *event, opts ...BatchOption) {
 				value.pre = node
 				value.key = v
 
+				if len(e.logger.opts) > 0 {
+					value.data.applyOpts(e.logger.opts...)
+				}
 				value.data.applyOpts(opts...)
 				b.logged = append(b.logged, *value)
 			}
 
 			value.data.count++
+			value.data.lastUpdated = time.Now()
 			node.nexts[v] = value
 		}
 
@@ -123,11 +133,12 @@ func (b *chainedBatcher) Batch(e *event, opts ...BatchOption) {
 
 func rawChainData(event *zerolog.Event) *chainData {
 	return &chainData{
-		event:    event,
-		count:    0,
-		start:    time.Now(),
-		timeout:  2 * time.Second,
-		maxBatch: 20,
+		event:            event,
+		count:            0,
+		start:            time.Now(),
+		timeout:          10 * time.Second,
+		maxRelativeBatch: 20,
+		wait:             5 * time.Second,
 	}
 }
 
@@ -147,11 +158,18 @@ func (b *chainedBatcher) logging() {
 				continue
 			}
 
-			chainData.event.Int("__repeat", b.logged[i].data.count)
-			chainData.event.Send()
-			b.logged[i].clean()
-			b.logged.RemoveUnor(i)
+			batchOut(b, chainData, i)
 		}
 		b.chainMtx.Unlock()
 	}
+}
+
+// batchOut log the message out and clean the alpchain (nexts, data)
+// and remove that element out of logger
+func batchOut(b *chainedBatcher, c *chainData, i int) {
+	c.event.Int("__repeat", c.count)
+	c.event.Send()
+
+	b.logged[i].clean()
+	b.logged.RemoveUnor(i)
 }

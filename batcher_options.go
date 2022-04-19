@@ -12,14 +12,26 @@ func (c *chainData) applyOpts(opts ...BatchOption) *chainData {
 	return c
 }
 
-func Timeout(timeout time.Duration) BatchOption {
+func OptTimeout(timeout time.Duration) BatchOption {
 	return func(q *chainData) {
 		q.timeout = timeout
 	}
 }
 
-func MaxBatch(maxBatch int) BatchOption {
+func OptMaxRelativeBatch(maxRelativeBatch int) BatchOption {
 	return func(q *chainData) {
-		q.maxBatch = maxBatch
+		q.maxRelativeBatch = maxRelativeBatch
+	}
+}
+
+func OptWait(wait time.Duration) BatchOption {
+	return func(q *chainData) {
+		q.wait = wait
+	}
+}
+
+func OptNoWait() BatchOption {
+	return func(q *chainData) {
+		q.wait = -1
 	}
 }
