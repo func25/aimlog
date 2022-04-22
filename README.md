@@ -4,7 +4,7 @@ batchlog is used to batch the logs (and built on top of zerolog)
 
 * [Installation](#installation)
 * [Samples](#samples)
-* [But](#but)
+* [Status](#status)
 
 ## Installation
 
@@ -56,5 +56,5 @@ for i := 0; i < 30; i++ {
 {"level":"debug","tokenID":"123456","message":"hello","__repeat":10,"id":["20","21","22","23","24","25","26","27","28","29"]}
 ```
 
-### But
-This lib is under developing
+## Status: pre-release
+This lib is under developing, please notice when using it
