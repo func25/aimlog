@@ -1,6 +1,4 @@
 github.com/coreos/go-systemd/v22 v22.3.2/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=
-github.com/func25/gofunc v1.0.5 h1:0TddVgzjUEymlyigwOAdCtOCvYJSVJW+5BxeVDCaM4w=
-github.com/func25/gofunc v1.0.5/go.mod h1:F2XxFVcoXFJzWI/NFijln56qgw4bELGPLab+JTNm3YQ=
 github.com/func25/slicesol v1.0.6 h1:tOMzZYtmRrZGW3QGqZxlz4yt4WtTMeRZ33mOUZnrS5Q=
 github.com/func25/slicesol v1.0.6/go.mod h1:T4TK0RGub+WkcpkSDx/mx92cYYC0aP+OQ+9566rdVQ0=
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
