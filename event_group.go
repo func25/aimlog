@@ -37,7 +37,7 @@ func (e *event) GroupFloat64(key string, value float64) *event {
 	return e
 }
 
-func (e *event) GroupInterface(key string, i interface{}) *event {
+func (e *event) GroupAny(key string, i interface{}) *event {
 	if b, err := json.Marshal(i); err != nil {
 		return nil
 	} else {

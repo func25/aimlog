@@ -31,7 +31,7 @@ func (e *event) Float64(key string, value float64) *event {
 	return e
 }
 
-func (e *event) Interface(key string, i interface{}) *event {
+func (e *event) Any(key string, i interface{}) *event {
 	if e.event.Interface(key, i) == nil {
 		return nil
 	}

@@ -113,8 +113,8 @@ func (e *event) BatchFloat64(key string, value float64) *event {
 	return e.batch(key, strconv.FormatFloat(float64(value), 'f', -1, 64))
 }
 
-func (e *event) BatchInterface(key string, i interface{}) *event {
-	if e.Interface(key, i) == nil {
+func (e *event) BatchAny(key string, i interface{}) *event {
+	if e.Any(key, i) == nil {
 		return nil
 	}
 
