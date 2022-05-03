@@ -4,7 +4,10 @@ batchlog is used to batch the logs (built on top of zerolog), avoid spamming
 
 * [Installation](#installation)
 * [Samples](#samples)
-* [Status](#status)
+ 	* [Batching](#batching)
+	* [Grouping](#grouping)
+* [Status](#status-pre-release)
+
 
 ## Installation
 
