@@ -1,6 +1,6 @@
 # batchlog
 
-batchlog is used to batch the logs (and built on top of zerolog)
+batchlog is used to batch the logs (built on top of zerolog), avoid spamming 
 
 * [Installation](#installation)
 * [Samples](#samples)
@@ -42,7 +42,7 @@ The result will be:
 
 ### Grouping
 
-This sample with batch first 20 messages in 1 batch and also create group of ids in this batch
+This sample will batch first 20 messages in 1 batch and also create group of ids for the log
 ```go
 logger := batchlog.NewLogger(batchlog.OptTimeout(time.Hour))
 for i := 0; i < 30; i++ {
