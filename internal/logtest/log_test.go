@@ -2,6 +2,7 @@ package logtest
 
 import (
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -9,7 +10,7 @@ import (
 )
 
 func TestMe(t *testing.T) {
-	logger := batchlog.NewLogger()
+	logger := batchlog.New(os.Stdout)
 	logger.Debug().BatchStr("tokenID", "123456").BatchBool("isBatch", false).BatchMsg("hello")
 	logger.Debug().BatchStr("tokenID", "123456").BatchMsg("hello")
 	logger.Debug().BatchStr("tokenID", "123457").BatchMsg("hello")
@@ -25,7 +26,7 @@ func TestMe(t *testing.T) {
 }
 
 func TestWait(t *testing.T) {
-	logger := batchlog.NewLogger(batchlog.OptTimeout(1 * time.Hour))
+	logger := batchlog.New(os.Stdout, batchlog.OptTimeout(1*time.Hour))
 	for i := 0; i < 10; i++ {
 		time.Sleep(time.Duration(i) * time.Second)
 		fmt.Println("log")
@@ -36,7 +37,7 @@ func TestWait(t *testing.T) {
 }
 
 func TestTimeout(t *testing.T) {
-	logger := batchlog.NewLogger(batchlog.OptTimeout(5 * time.Second))
+	logger := batchlog.New(os.Stdout, batchlog.OptTimeout(5*time.Second))
 	for i := 0; i < 10; i++ {
 		time.Sleep(time.Duration(i) * time.Second)
 		fmt.Println("log")
@@ -47,7 +48,7 @@ func TestTimeout(t *testing.T) {
 }
 
 func TestMaxRelatitveBatch(t *testing.T) {
-	logger := batchlog.NewLogger(batchlog.OptTimeout(time.Hour))
+	logger := batchlog.New(os.Stdout, batchlog.OptTimeout(time.Hour))
 	for i := 0; i < 30; i++ {
 		time.Sleep(1500 * time.Millisecond)
 		logger.Debug().BatchStr("tokenID", "123456").BatchMsg("hello")
@@ -57,7 +58,7 @@ func TestMaxRelatitveBatch(t *testing.T) {
 }
 
 func TestGroup(t *testing.T) {
-	logger := batchlog.NewLogger(batchlog.OptTimeout(time.Hour))
+	logger := batchlog.New(os.Stdout, batchlog.OptTimeout(time.Hour))
 	for i := 0; i < 30; i++ {
 		time.Sleep(1500 * time.Millisecond)
 		logger.Debug().BatchStr("tokenID", "123456").GroupInt("id", i).BatchMsg("hello")
@@ -67,7 +68,7 @@ func TestGroup(t *testing.T) {
 }
 
 func TestScenario(t *testing.T) {
-	logger := batchlog.NewLogger(batchlog.OptTimeout(time.Hour))
+	logger := batchlog.New(os.Stdout, batchlog.OptTimeout(time.Hour))
 
 	go func() {
 		logger.Debug().BatchStr("tokenID", "123456").BatchMsg("hello")
@@ -99,4 +100,12 @@ func TestScenario(t *testing.T) {
 	for {
 		time.Sleep(time.Second)
 	}
+}
+
+func TestContext(t *testing.T) {
+	logger := batchlog.FromZLog(batchlog.NewZLog(os.Stdout).With().Str("op", "FuseHero").Logger())
+	logger.Info().BatchAny("test", "this is test").Send()
+	logger.Info().BatchAny("test", "this is test").Send()
+	logger.Info().BatchAny("test", "this is test").Send()
+	time.Sleep(15 * time.Second)
 }

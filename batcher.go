@@ -42,13 +42,13 @@ type chainData struct {
 	event *zerolog.Event
 
 	count            int
-	maxRelativeBatch int // option
+	maxRelativeBatch int // option, default is 20
 
 	start   time.Time
-	timeout time.Duration // option
+	timeout time.Duration // option, default = 10s
 
 	lastUpdated time.Time
-	wait        time.Duration // option
+	wait        time.Duration // option, default = 5s
 
 	groupKey    string
 	groupValues []string

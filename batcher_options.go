@@ -1,6 +1,8 @@
 package batchlog
 
-import "time"
+import (
+	"time"
+)
 
 type BatchOption func(*chainData)
 
